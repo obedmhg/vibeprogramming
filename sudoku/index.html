@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer>
+        let solution = [];
+        
+        function generateSudoku(difficulty) {
+            const emptyGrid = Array.from({ length: 9 }, () => Array(9).fill(0));
+            fillSudoku(emptyGrid);
+            solution = JSON.parse(JSON.stringify(emptyGrid));
+            removeNumbers(emptyGrid, difficulty);
+            renderSudoku(emptyGrid);
+        }
+        
+        function fillSudoku(board) {
+            function isValid(board, row, col, num) {
+                for (let x = 0; x < 9; x++) {
+                    if (board[row][x] === num || board[x][col] === num) return false;
+                    const startRow = Math.floor(row / 3) * 3 + Math.floor(x / 3);
+                    const startCol = Math.floor(col / 3) * 3 + (x % 3);
+                    if (board[startRow][startCol] === num) return false;
+                }
+                return true;
+            }
+            
+            function solve(board) {
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        if (board[row][col] === 0) {
+                            for (let num = 1; num <= 9; num++) {
+                                if (isValid(board, row, col, num)) {
+                                    board[row][col] = num;
+                                    if (solve(board)) return true;
+                                    board[row][col] = 0;
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            solve(board);
+        }
+        
+        function removeNumbers(board, difficulty) {
+            let attempts = difficulty === 'easy' ? 30 : difficulty === 'medium' ? 40 : 50;
+            while (attempts > 0) {
+                let row = Math.floor(Math.random() * 9);
+                let col = Math.floor(Math.random() * 9);
+                if (board[row][col] !== 0) {
+                    board[row][col] = 0;
+                    attempts--;
+                }
+            }
+        }
+        
+        function renderSudoku(board) {
+            const grid = document.getElementById("sudoku-grid");
+            grid.innerHTML = "";
+            board.forEach((row, rIdx) => {
+                row.forEach((num, cIdx) => {
+                    const cell = document.createElement("input");
+                    cell.type = "text";
+                    cell.maxLength = 1;
+                    cell.className = `w-12 h-12 text-center border text-lg 
+                        ${num ? 'bg-gray-200' : 'bg-white'} 
+                        ${cIdx % 3 === 2 ? 'border-r-4' : 'border-r'}
+                        ${rIdx % 3 === 2 ? 'border-b-4' : 'border-b'}
+                        border-black`;
+                    cell.value = num || "";
+                    cell.readOnly = !!num;
+                    if (!num) {
+                        cell.addEventListener("input", (e) => validateInput(e, rIdx, cIdx));
+                    }
+                    grid.appendChild(cell);
+                });
+            });
+        }
+        
+        function validateInput(event, row, col) {
+            const value = parseInt(event.target.value, 10);
+            if (isNaN(value) || value < 1 || value > 9) {
+                event.target.value = "";
+                event.target.classList.remove("text-green-500", "text-red-500");
+                return;
+            }
+            if (value === solution[row][col]) {
+                event.target.classList.add("text-green-500");
+                event.target.classList.remove("text-red-500");
+            } else {
+                event.target.classList.add("text-red-500");
+                event.target.classList.remove("text-green-500");
+            }
+        }
+        
+        window.onload = () => generateSudoku('easy');
+    </script>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-5">
+    <h1 class="text-3xl font-bold mb-4">Sudoku Generator</h1>
+    <div class="flex gap-2 mb-4">
+        <button class="px-4 py-2 bg-blue-500 text-white rounded" onclick="generateSudoku('easy')">Easy</button>
+        <button class="px-4 py-2 bg-yellow-500 text-white rounded" onclick="generateSudoku('medium')">Medium</button>
+        <button class="px-4 py-2 bg-red-500 text-white rounded" onclick="generateSudoku('hard')">Hard</button>
+    </div>
+    <div id="sudoku-grid" class="grid grid-cols-9 gap-0"></div>
+</body>
+</html>
