@@ -22,7 +22,8 @@
                 { text: "Gradius", url: "./gradius/index.html", img: "gradius.png" },
                 { text: "Melisandre", url: "./melisandre/index.html", img: "./melisandre/m2.jpg" },
                 { text: "QR Code Generator", url: "./qr/index.html", img: "./qr/image.png" },
-                { text: "Sudoku Generator", url: "./sudoku/index.html", img: "./sudoku/image.png" }
+                { text: "Sudoku Generator", url: "./sudoku/index.html", img: "./sudoku/image.png" },
+                { text: "TicTacToe", url: "./tictactoe/index.html", img: "./tictactoe/image.png" }
             ];
 
             const menuContainer = document.getElementById("menu");
@@ -39,26 +40,26 @@
                 menuContainer.appendChild(li);
 
                 // Create cards
-                const card = document.createElement("div");
-                card.classList.add("bg-white", "shadow-md", "rounded-lg", "overflow-hidden", "p-4");
-                
+                const card = document.createElement("a");
+                card.href = item.url;
+                card.classList.add("bg-white", "shadow-md", "rounded-lg", "overflow-hidden", "p-4", "block");
+
                 const img = document.createElement("img");
                 img.src = item.img;
                 img.alt = item.text;
                 img.classList.add("w-full", "h-40", "object-cover", "rounded-t-lg");
-                
+
                 const cardBody = document.createElement("div");
                 cardBody.classList.add("p-4");
-                
+
                 const cardTitle = document.createElement("h2");
                 cardTitle.textContent = item.text;
                 cardTitle.classList.add("text-xl", "font-bold", "mb-2");
-                
-                const cardLink = document.createElement("a");
-                cardLink.href = item.url;
+
+                const cardLink = document.createElement("span");
                 cardLink.textContent = "Learn More";
                 cardLink.classList.add("text-blue-600", "hover:underline");
-                
+
                 cardBody.appendChild(cardTitle);
                 cardBody.appendChild(cardLink);
                 card.appendChild(img);

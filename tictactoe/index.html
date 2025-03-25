@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe (Canvas)</title>
+  <style>
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    canvas { background: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const SIZE = 3;
+    const CELL_SIZE = 100;
+    canvas.width = CELL_SIZE * SIZE;
+    canvas.height = CELL_SIZE * SIZE;
+
+    let board = Array(SIZE).fill().map(() => Array(SIZE).fill(null));
+    let currentPlayer = "X";
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "#000";
+
+      for (let i = 1; i < SIZE; i++) {
+        let pos = i * CELL_SIZE;
+        ctx.beginPath();
+        ctx.moveTo(pos, 0);
+        ctx.lineTo(pos, canvas.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, pos);
+        ctx.lineTo(canvas.width, pos);
+        ctx.stroke();
+      }
+
+      board.forEach((row, r) => row.forEach((cell, c) => {
+        if (cell) drawMarker(r, c, cell);
+      }));
+    }
+
+    function drawMarker(row, col, player) {
+      let x = col * CELL_SIZE + CELL_SIZE / 2;
+      let y = row * CELL_SIZE + CELL_SIZE / 2;
+
+      ctx.font = "40px Arial";
+      ctx.fillStyle = player === "X" ? "red" : "blue";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(player, x, y);
+    }
+
+    function handleClick(event) {
+      const rect = canvas.getBoundingClientRect();
+      const col = Math.floor((event.clientX - rect.left) / CELL_SIZE);
+      const row = Math.floor((event.clientY - rect.top) / CELL_SIZE);
+
+      if (board[row][col]) return;
+
+      board[row][col] = currentPlayer;
+      if (checkWinner()) {
+        alert(`${currentPlayer} wins!`);
+        resetGame();
+      } else {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+      }
+      drawBoard();
+    }
+
+    function checkWinner() {
+      for (let i = 0; i < SIZE; i++) {
+        if (board[i][0] && board[i][0] === board[i][1] && board[i][1] === board[i][2]) return true;
+        if (board[0][i] && board[0][i] === board[1][i] && board[1][i] === board[2][i]) return true;
+      }
+      if (board[0][0] && board[0][0] === board[1][1] && board[1][1] === board[2][2]) return true;
+      if (board[0][2] && board[0][2] === board[1][1] && board[1][1] === board[2][0]) return true;
+      return false;
+    }
+
+    function resetGame() {
+      board = Array(SIZE).fill().map(() => Array(SIZE).fill(null));
+      currentPlayer = "X";
+      drawBoard();
+    }
+
+    canvas.addEventListener("click", handleClick);
+    drawBoard();
+  </script>
+</body>
+</html>
